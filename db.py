@@ -10,10 +10,7 @@ class db(object):
                 self.data = json.loads(ThisFile.read())
         except:
             with open(self.file, 'w+') as ThisFile:
-                ThisFile.write('[]')
-
-    def __repr__(self):
-        return self.data
+                ThisFile.write('{}')
 
     def write(self):
         with open(self.file, 'w') as ThisFile:
