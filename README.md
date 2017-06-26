@@ -1,1 +1,3 @@
-# Koala-tea_bot
+# Koalatea Bot
+See here, we have some koala-tea puns.
+heh, heh.
