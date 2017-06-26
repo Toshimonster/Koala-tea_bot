@@ -1,11 +1,19 @@
 from cmds import commands
+from db import db
+from teas import teatypes
 
 import slackclient
 import time
 
+FLAG_TEATIME = False
+TEATIME_TEAS = []
+TEATIME_CREATOR = ''
+TEATIME_CHANNEL = ''
 BOT_TOKEN = 'xoxb-203556679653-cw7sHS1qdXwTQsfd5Gs0BGoj'
 PREFIX = '!'
+TEATIME_END = 0
 
+database = db("./db.json")
 koalatea = slackclient.SlackClient(BOT_TOKEN)
 
 def mention(user):
@@ -15,14 +23,29 @@ def sendMessage(channel, text):
     koalatea.api_call("chat.postMessage", channel=channel, text=text, as_user=True)
 
 def parse_to_event(slack_rtm_output):
-    if len(slack_rtm_output) > 0:
-        eventType = slack_rtm_output[0]["type"]
+    global FLAG_TEATIME
+    if FLAG_TEATIME:
+        if len(slack_rtm_output) > 0:
+            if TEATIME_END < time.time():
+                FLAG_TEATIME = False
+                teatimeEnd()
+                
+            eventType = slack_rtm_output[0]["type"]
 
-        if eventType == "message":
-            user = slack_rtm_output[0]["user"]
-            channel = text = slack_rtm_output[0]["channel"]
-            text = slack_rtm_output[0]["text"]
-            event_onMessage(text, user, channel)
+            if eventType == "message":
+                if TEATIME_CHANNEL == slack_rtm_output[0]["channel"]:
+                    teatype = slack_rtm_output[0]["text"]
+                    if teatype in teatypes:
+                        TEATIME_TEAS.append(teatype, slack_rtm_output[0]["user"])
+    else:
+        if len(slack_rtm_output) > 0:
+            eventType = slack_rtm_output[0]["type"]
+
+            if eventType == "message":
+                user = slack_rtm_output[0]["user"]
+                channel = text = slack_rtm_output[0]["channel"]
+                text = slack_rtm_output[0]["text"]
+                event_onMessage(text, user, channel)
 
 def event_onMessage(message, user, channel):
     if message.startswith(PREFIX):
@@ -35,7 +58,31 @@ def event_onMessage(message, user, channel):
                 eval(cmd["execute"])
         if not flag_found:
             sendMessage(channel, mention(user) + " : '" + command + "' is not a real command!")
+
+def teatimeEnd():
+    global TEATIME_CREATOR
+    global TEATIME_CHANNEL
+    global TEATIME_TEAS
     
+    try:
+        db.data[TEATIME_CREATOR]["rounds"] += 1
+    except:
+        db.data[TEATIME_CREATOR] = {
+            "teas" : 0,
+            "rounds" : 1
+        }
+    drinks = ''
+    for tdrink in TEATIME_TEAS:
+        try:
+            db.data[tdrink[1]]["teas"] += 1
+        except:
+            db.data[tdrink[1]] = {
+                "teas" : 1,
+                "rounds" : 0
+            }
+        drinks += tdrink[1] + "wants a " + tdrink[0]
+    db.write()
+    sendMessage(TEATIME_CHANNEL, mention(TEATIME_CREATOR) + " Drinks are recorded! They are: ```\n" + drinks + "\n```\n I hope you enjoy your koala-tea drinks!")
 
 if __name__ == "__main__":
     if koalatea.rtm_connect():
