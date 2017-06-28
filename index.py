@@ -14,14 +14,14 @@ import threading
 import slackclient
 import time
 
-client_id = '090b7b857de4107'
-client_secret = '0df30a05bdfb38985ac85e7a15c56e6087308ccf'
+client_id = 'IMGUR-CLIENT-ID'
+client_secret = 'IMGUR-CLIENT-SECRET'
 
 FLAG_TEATIME = False
 TEATIME_TEAS = []
 TEATIME_CREATOR = ''
 TEATIME_CHANNEL = ''
-BOT_TOKEN = 'xoxb-203556679653-cw7sHS1qdXwTQsfd5Gs0BGoj'
+BOT_TOKEN = 'SLACK-BOT-TOKEN'
 PREFIX = '!'
 TEATIME_END = 0
 
