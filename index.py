@@ -11,11 +11,12 @@ from CONFIG import settings
 from imgurpython import ImgurClient
 from cmds import commands
 from db import db
-from teas import teatypes
+from teas import teatypes, peronitypes
 
 import threading
 import slackclient
 import time
+import datetime
 
 PREFIX = settings["PREFIX"]
 TEATIME_LENGTH_OG = settings["TEATIME_LENGTH"]
@@ -33,15 +34,27 @@ TEATIME_CHANNEL = ''
 TEATIME_END = 0
 TEATIME_CANCELED = False
 
+P_thread = None
+P_FLAG_TEATIME = False
+P_TEATIME_TEAS = []
+P_TEATIME_CREATOR = ''
+P_TEATIME_CHANNEL = ''
+P_TEATIME_END = 0
+P_TEATIME_CANCELED = False
+P_TEATIME_LENGTH = TEATIME_LENGTH_OG
+
 database = db("./db.json")
 imgur = ImgurClient(client_id, client_secret)
 koalatea = slackclient.SlackClient(BOT_TOKEN)
 
 teatype_list = []
+peroni_list = []
 
 for teatype in teatypes:
     teatype_list.append(teatype[0])
 
+for teatype in peronitypes:
+    peroni_list.append(teatype[0])
 #server stuff START
 
 class server(threading.Thread):
@@ -55,6 +68,29 @@ class server(threading.Thread):
 serverthread = server()
 serverthread.start()
 #server stuff END
+
+class ping_slackRequest_peroni(threading.Thread):
+    def __init__(self, msg):
+        threading.Thread.__init__(self)
+        self.msg = msg
+
+    def run(self):
+        global P_TEATIME_CANCELED
+        verbose("Thread Waiting")
+        time.sleep((P_TEATIME_LENGTH) / 4)
+        if not P_TEATIME_CANCELED:
+            sendMessage(self.msg["channel"], '<!channel> Peroni is 1/4 done!')
+        time.sleep((P_TEATIME_LENGTH) / 4)
+        if not P_TEATIME_CANCELED:
+            sendMessage(self.msg["channel"], '<!channel> Peroni is 1/2 done!')
+        time.sleep((P_TEATIME_LENGTH) / 4)
+        if not P_TEATIME_CANCELED:
+            sendMessage(self.msg["channel"], '<!channel> Peroni is 3/4 done!')
+        time.sleep((P_TEATIME_LENGTH) / 4)
+        if not P_TEATIME_CANCELED:
+            verbose("Thread Pinging")
+            for i in range(5):
+                koalatea.api_call("reactions.add", channel=self.msg["channel"], timestamp=self.msg["ts"], name="ballot_box_with_check")
 
 class ping_slackRequest(threading.Thread):
     def __init__(self, msg):
@@ -78,7 +114,6 @@ class ping_slackRequest(threading.Thread):
             verbose("Thread Pinging")
             for i in range(5):
                 koalatea.api_call("reactions.add", channel=self.msg["channel"], timestamp=self.msg["ts"], name="ballot_box_with_check")
-
 
 def createXcel():
     workbook = xlsxwriter.Workbook('Data.xlsx')
@@ -131,6 +166,14 @@ def checkTea(value):
         return " ".join(value.split(" ")[1:])
     return False
 
+def P_checkTea(value):
+    for drink in peronitypes:
+        if value.title() == drink[0] or value.lower() in drink[1]:
+            return drink[0]
+    if value.lower().split(" ")[0] == 'custom':
+        return " ".join(value.split(" ")[1:])
+    return False
+
 def verbose(msg):
     if VERBOSE:
         print(msg)
@@ -165,6 +208,11 @@ def parse_to_event(slack_rtm_output):
     global TEATIME_CHANNEL
     global TEATIME_END
     global TEATIME_CANCELED
+    global P_FLAG_TEATIME
+    global P_TEATIME_CREATOR
+    global P_TEATIME_CHANNEL
+    global P_TEATIME_END
+    global P_TEATIME_CANCELED
     if FLAG_TEATIME:
         if len(slack_rtm_output) > 0:
 
@@ -192,6 +240,47 @@ def parse_to_event(slack_rtm_output):
 
                         if teatype != False:
                             TEATIME_TEAS.append([teatype, slack_rtm_output[0]["user"]])
+                            addReaction(slack_rtm_output[0], "ballot_box_with_check")
+                    except Exception as e:
+                        verbose("EXCEPTION :")
+                        verbose(e)
+
+                if not TEATIME_CANCELED:
+                    try:
+                        user = slack_rtm_output[0]["user"]
+                        channel = text = slack_rtm_output[0]["channel"]
+                        text = slack_rtm_output[0]["text"]
+                        event_onMessage(text, user, channel, slack_rtm_output[0])
+                    except Exception as e:
+                        verbose("EXCEPTION :")
+                        verbose(e)
+    elif P_FLAG_TEATIME:
+        if len(slack_rtm_output) > 0:
+
+            verbose("PERONI! : " + str(P_TEATIME_END - time.time()))
+            if P_TEATIME_END < time.time():
+                P_FLAG_TEATIME = False
+                P_teatimeEnd()
+
+            eventType = slack_rtm_output[0]["type"]
+
+            if eventType == "message":
+                if P_TEATIME_CHANNEL == slack_rtm_output[0]["channel"]:
+                    if slack_rtm_output[0]["text"][len(PREFIX):].split(" ")[0].lower() == 'cancel':
+                        sendMessage(P_TEATIME_CHANNEL, '<@channel> ' + mention(slack_rtm_output[0]["user"]) + ' has canceled the peroni! No more countdown hums. :(')
+                        P_FLAG_TEATIME = False
+                        P_TEATIME_CANCELED = True
+                    elif slack_rtm_output[0]["text"].lower() == 'cancel':
+                        for tindex, tdrink in enumerate(P_TEATIME_TEAS):
+                            if tdrink[0] == slack_rtm_output[0]["user"]:
+                                P_TEATIME_TEAS.pop(tindex)
+                        addReaction(slack_rtm_output[0], "x")
+
+                    try:
+                        teatype = P_checkTea(slack_rtm_output[0]["text"])
+
+                        if teatype != False:
+                            P_TEATIME_TEAS.append([teatype, slack_rtm_output[0]["user"]])
                             addReaction(slack_rtm_output[0], "ballot_box_with_check")
                     except Exception as e:
                         verbose("EXCEPTION :")
@@ -280,6 +369,39 @@ def teatimeEnd():
 
     database.write()
     sendMessage(TEATIME_CHANNEL, mention(TEATIME_CREATOR) + " Drinks are recorded!\n\n" + drinks + "\n *I hope you enjoy your Koala-tea drinks!*")
+
+def P_teatimeEnd():
+    global P_TEATIME_CREATOR
+    global P_TEATIME_CHANNEL
+    global P_TEATIME_TEAS
+
+    sendMessage(P_TEATIME_CHANNEL, "Peroni done! Generating Koala-tea drink lists...")
+
+    drinks = ''
+
+    for teatype in peronitypes:
+        this_tea_value = 0
+        this_tea_text = ''
+        for tdrink in P_TEATIME_TEAS:
+            if tdrink[0] == teatype[0]:
+                this_tea_text += "_" + userInfo(tdrink[1])["name"] + "_\n"
+                this_tea_value += 1
+        if this_tea_value > 0:
+            this_tea_text = "*" + teatype[0] + " - " + str(this_tea_value) + "*\n" + this_tea_text
+        drinks += this_tea_text
+
+    custom_tea_value = 0
+    custom_tea_text = ''
+    for tdrink in P_TEATIME_TEAS:
+        if tdrink[0] not in peroni_list:
+            custom_tea_text += "_" + userInfo(tdrink[1])["name"] + " wants a " + tdrink[0] + "_\n"
+            custom_tea_value += 1
+    if custom_tea_value > 0:
+        custom_tea_text = "*Custom Drinks - " + str(custom_tea_value) + "*\n" + custom_tea_text
+    drinks += custom_tea_text
+
+    sendMessage(P_TEATIME_CHANNEL, mention(P_TEATIME_CREATOR) + " Drinks are recorded!\n\n" + drinks + "\n *I hope you enjoy your Koala-tea drinks!*")
+
 
 if __name__ == "__main__":
     connection = koalatea.rtm_connect()

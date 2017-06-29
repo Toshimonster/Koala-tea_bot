@@ -20,5 +20,23 @@ teatypes = [
     ["Black Americano", ["ba"]],
     ["Roooiboos Tea Black", ["rtb"]],
     ["Lemon Green Tea", ["lgt"]],
-    ["Coffee Milkshake", ["cm"]]
+    ["Coffee Milkshake", ["cm"]],
+]
+
+peronitypes = [
+    ["Peroni", ["p"]],
+    ["Stowford", ["s"]],
+    ["Small Stowford", ["ss"]],
+    ["Guiness", ["g"]],
+    ["Orange Juice", ["oj"]],
+    ["Apple Juice", ["aj"]],
+    ["Coke", ["c"]],
+    ["Small Coke", ["sc"]],
+    ["Diet Coke", ["dc"]],
+    ["Small Diet Coke", ["sdc"]],
+    ["Three Hop", ["3h"]],
+    ["Sauvignon Blanc", ["sb"]],
+    ["Small Sauvignon Blanc", ["ssb"]],
+    ["Medium Sauvignon Blanc", ["msb"]],
+    ["Large Sauvignon Blanc", ["lsb"]]
 ]

@@ -85,6 +85,43 @@ thread.start()
 """
     },
     {
+        "name" : "Peronitime",
+        "description" : "Starts a 'Peroni Time' - asks everyone what they want, and displays it to the user.",
+        "hidden" : False,
+        "syntax" : "Peronitime {time in seconds}",
+        "alias" : ['peronitime', 'fabledcountdownclock'],
+        "execute" : """
+if time.localtime().tm_hour < 16 or datetime.datetime.now().strftime("\%a") != "Friday":
+    sendMessage(channel, mention(user) + ' : *GET BACK TO WORK!*')
+else:
+    global P_FLAG_TEATIME
+    global P_TEATIME_CREATOR
+    global P_TEATIME_CHANNEL
+    global P_TEATIME_END
+    global P_TEATIME_LENGTH
+    global P_TEATIME_TEAS
+    global P_TEATIME_CANCELED
+    global P_TEATIME_LENGTH_OG
+    global P_thread
+    P_TEATIME_TEAS = []
+    P_FLAG_TEATIME = True
+    if len(arguments) > 0:
+        try:
+            P_TEATIME_LENGTH = eval(arguments[0])
+        except:
+            P_TEATIME_LENGTH = TEATIME_LENGTH_OG
+    else:
+        P_TEATIME_LENGTH = TEATIME_LENGTH_OG
+    P_TEATIME_CREATOR = user
+    P_TEATIME_CHANNEL = channel
+    P_TEATIME_END = time.time() + P_TEATIME_LENGTH
+    P_TEATIME_CANCELED = False
+    sendMessage(channel, 'https://www.gifgif.io/QNMlcP.gif\\n<!channel> : The peroni round has begun! It will end in ' + str(P_TEATIME_LENGTH) + ' seconds!')
+    P_thread = ping_slackRequest_peroni(p_msg)
+    P_thread.start()
+"""
+    },
+    {
         "name" : "Top",
         "description" : "Shows the top Tea makers, in comparison to the amount of drinks they have ordered.",
         "hidden" : False,
@@ -119,7 +156,7 @@ sendMessage(channel, 'Leaderboards are as follows: \\n```' + text + '```\\n')
         "description" : "Shows all teatypes, and thier aliases.",
         "hidden" : False,
         "syntax" : "Teatypes",
-        "alias" : ['teatype', 'teatypes', 'teavariant', 'teavariants', 'TEAVARIANTS', 'TEATYPES'],
+        "alias" : ['teatype', 'teatypes', 'teavariant', 'teavariants'],
         "execute" : """
 text = ""
 for drink in teatypes:
@@ -129,6 +166,23 @@ for drink in teatypes:
     text[:-2]
     text += "\\n"
 sendMessage(channel, mention(user) + "\\n```" + text + "```\\n \\n *If you dont see your drink here, you can do `custom {name}` during a tearound!*")
+"""
+    },
+    {
+        "name" : "Peronitypes",
+        "description" : "Shows all peronitypes, and thier aliases.",
+        "hidden" : False,
+        "syntax" : "Peronitypes",
+        "alias" : ['peronitype', 'peronitypes', 'peronivariant', 'peronivariants'],
+        "execute" : """
+text = ""
+for drink in peronitypes:
+    text += drink[0] + " : "
+    for thisalias in drink[1]:
+        text += thisalias + ", "
+    text[:-2]
+    text += "\\n"
+sendMessage(channel, mention(user) + "\\n```" + text + "```\\n \\n *If you dont see your drink here, you can do `custom {name}` during a peroniround!*")
 """
     },
     {

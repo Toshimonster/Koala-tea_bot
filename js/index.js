@@ -1,5 +1,4 @@
 init = () => {
-    console.log("boop1")
     var portal = document.getElementById('koala')
     var canvas = document.getElementById('canvas')
     var ctx = canvas.getContext('2d')
@@ -55,7 +54,6 @@ init = () => {
         ctx.translate(canvas.width / 2, canvas.height / 2)
         ctx.font = "100px Comic Sans MS";
         ctx.fillStyle = "red";
-        console.log("boop")
         ctx.textAlign = "center";
         ctx.fillText("Now this is a koala-tea bot!", 0, 100);
         ctx.translate(-(canvas.width / 2), -(canvas.height / 2))
