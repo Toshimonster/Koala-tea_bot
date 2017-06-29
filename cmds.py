@@ -18,9 +18,10 @@ if len(arguments) > 0:
                 text += alias.title() + ', '
             text = text[:-2]
             text += '_\\n\\n> ' + cmd['description'] + '\\n' + '`' + cmd['syntax'] + '`'
-    print(text)
-    print("got here")
-    sendMessage(channel, text)
+    if text != '':
+        sendMessage(channel, text)
+    else:
+        sendMessage(channel, "Could not find command `" + arguments[0] + "`!")
 else:
     for cmd in commands:
         if cmd['hidden'] != True:
@@ -39,51 +40,78 @@ sendMessage(channel, mention(user) + ' Pong!')
 """
     },
     {
+        "name" : "Screenfetch",
+        "description" : "Gives infomation of the server, running Koala-tea",
+        "hidden" : False,
+        "syntax" : "Screenfetch",
+        "alias" : ["screenfetch", "status"],
+        "execute" : """
+screenfetch_output = subprocess.run(['screenfetch'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+sendMessage(channel, '```' + screenfetch_output + '```')
+"""
+    },
+    {
         "name" : "Tearound",
         "description" : "Starts a 'tearound' - asks everyone what they want, and displays it to the user.",
         "hidden" : False,
-        "syntax" : "Tearound",
+        "syntax" : "Tearound {time in seconds}",
         "alias" : ['tearound', 'teatime'],
         "execute" : """
 global FLAG_TEATIME
 global TEATIME_CREATOR
 global TEATIME_CHANNEL
 global TEATIME_END
+global TEATIME_LENGTH
+global TEATIME_TEAS
+global TEATIME_CANCELED
+global TEATIME_LENGTH_OG
+global thread
+TEATIME_TEAS = []
 FLAG_TEATIME = True
+if len(arguments) > 0:
+    try:
+        TEATIME_LENGTH = eval(arguments[0])
+    except:
+        TEATIME_LENGTH = TEATIME_LENGTH_OG
+else:
+    TEATIME_LENGTH = TEATIME_LENGTH_OG
 TEATIME_CREATOR = user
 TEATIME_CHANNEL = channel
-TEATIME_END = time.time() + 60
-sendMessage(channel, mention(user) + ' The tea round has begun! It will end in 60 seconds!')
+TEATIME_END = time.time() + TEATIME_LENGTH
+TEATIME_CANCELED = False
+sendMessage(channel, '<!channel> : The tea round has begun! It will end in ' + str(TEATIME_LENGTH) + ' seconds!')
 thread = ping_slackRequest(p_msg)
 thread.start()
 """
     },
     {
         "name" : "Top",
-        "description" : "Shows the top 10 Tea makers, in comparison to the amount of drinks they have ordered.",
+        "description" : "Shows the top Tea makers, in comparison to the amount of drinks they have ordered.",
         "hidden" : False,
         "syntax" : "Top",
         "alias" : ['leaderboards', 'leaderboard', 'top'],
         "execute" : """
+sendMessage(channel, 'Generating leaderboards...')
 text = str()
-sorteddb = sorted(database.data.items(), key=lambda x: tryDivide('(x[1]["drinks"]/x[1]["made"])', x))[:10]
+sorteddb = sorted(database.data.items(), key=lambda x: tryDivide('(x[1]["drinks"]/x[1]["made"])', x))
 for user in sorteddb:
     text += userInfo(user[0])["name"] + " : Made - " + str(user[1]["made"]) + " ; Requested - " + str(user[1]["drinks"]) + "\\n"
-sendMessage(channel, 'Leaderboards are as follows: \\n' + text + '\\n')
+sendMessage(channel, 'Leaderboards are as follows: \\n```' + text + '```\\n')
 """
     },
     {
         "name" : "Bottom",
-        "description" : "Shows the top 10 worst Tea makers, in comparison to the amount of drinks they have ordered.",
+        "description" : "Shows the worst Tea makers, in comparison to the amount of drinks they have ordered.",
         "hidden" : False,
         "syntax" : "Bottom",
         "alias" : ['namenshame', 'nameandshame', 'bottom'],
         "execute" : """
+sendMessage(channel, 'Generating leaderboards...')
 text = str()
-sorteddb = sorted(database.data.items(), key=lambda x: tryDivide('(x[1]["made"]/x[1]["drinks"])', x))[:10]
+sorteddb = sorted(database.data.items(), key=lambda x: tryDivide('(x[1]["made"]/x[1]["drinks"])', x))
 for user in sorteddb:
     text += userInfo(user[0])["name"] + " : Made - " + str(user[1]["made"]) + " ; Requested - " + str(user[1]["drinks"]) + "\\n"
-sendMessage(channel, 'Leaderboards are as follows: \\n' + text + '\\n')
+sendMessage(channel, 'Leaderboards are as follows: \\n```' + text + '```\\n')
 """
     },
     {
@@ -100,7 +128,7 @@ for drink in teatypes:
         text += thisalias + ", "
     text[:-2]
     text += "\\n"
-sendMessage(channel, mention(user) + "\\n" + text)
+sendMessage(channel, mention(user) + "\\n```" + text + "```\\n \\n *If you dont see your drink here, you can do `custom {name}` during a tearound!*")
 """
     },
     {
@@ -134,6 +162,16 @@ sendMessage(channel, mention(user) + 'https://i.kinja-img.com/gawker-media/image
 """
     },
     {
+        "name" : "Sekrit Dokuments",
+        "description" : "This will show true russian sekrit dokuments cover.",
+        "hidden" : True,
+        "syntax" : "Sekrit",
+        "alias" : ['sekrit', 'secret', 'dokuments'],
+        "execute" : """
+sendMessage(channel, mention(user) + http://cdn-live.warthunder.com/uploads/f4/9b8f9593601926568cc98120ded45b1dc588f3_lq/Sekrit%20dokuments%20wip.PNG Here are sekrit dokuments for you.
+"""
+    },
+    {
         "name" : "Cat",
         "description" : "Show a random cat.",
         "hidden" : False,
@@ -144,6 +182,47 @@ sendMessage(channel, requests.get('http://random.cat/meow').json()["file"])
 """
     },
     {
+        "name" : "RandomUser",
+        "description" : "Produces a random user, to be used as tests in programs.",
+        "hidden" : False,
+        "syntax" : "RandomUser",
+        "alias" : ["randomuser", "randuser", "ruser"],
+        "execute" : """
+user = requests.get('https://randomuser.me/api/?nat=gb&noinfo&format=json').json()["results"][0]
+attatchment = {
+    "author_name" : user["name"]["title"].title() + " " + user["name"]["first"].title() + " " + user["name"]["last"].title(),
+    "image_url" : user["picture"]["thumbnail"],
+    "title" : user["email"],
+    "fields" : [
+        {
+            "title": "Login details",
+            "value": user["login"]["username"] + " : " + user["login"]["password"]
+        },
+        {
+            "title": "Location",
+            "value": user["location"]["state"] + ", " + user["location"]["city"] + ", " + user["location"]["street"] + ", " + user["location"]["postcode"]
+        },
+        {
+            "title": "General Info",
+            "value": "DOB : " + user["dob"] + "\\nPHONE : (H) " + user["phone"] + " (M) " + user["cell"]
+        }
+    ],
+    "footer": "Gender : " + user["gender"]
+}
+koalatea.api_call("chat.postMessage", channel=channel, text="Random User", as_user=True, attachments=[attatchment])
+"""
+    },
+    {
+        "name" : "Cancel",
+        "description" : "Cancels a tearound",
+        "hidden" : False,
+        "syntax" : "Cancel",
+        "alias" : ["cancel"],
+        "execute" : """
+sendMessage(channel, "A teatime has to be running to do that!")
+"""
+    },
+    {
         "name" : "Gif",
         "description" : "Displays a random gif based on a query.",
         "hidden" : False,
@@ -151,12 +230,27 @@ sendMessage(channel, requests.get('http://random.cat/meow').json()["file"])
         "alias" : ["gif", "gifmeh", "animation"],
         "execute" : """
 thisrequest = "%20".join(arguments)
-thisjson = requests.get("http://api.tenor.com/v1/search?key=LIVDSRZULELA&tag=" + thisrequest + "&limit=10&country=uk").json()
+thisjson = requests.get("http://api.tenor.com/v1/search?key=" + TENOR_KEY + "&tag=" + thisrequest + "&limit=10&country=uk").json()
 if len(thisjson["results"]) > 0:
     imageurl = random.choice(thisjson["results"])["url"]
     sendMessage(channel, imageurl)
 else:
     sendMessage(channel, "Your request was so abstract, noone has posted a gif of it yet!")
+"""
+    },
+    {
+        "name" : "Tea",
+        "description" : "Displays a random gif of 'teas'",
+        "hidden" : False,
+        "syntax" : "Tea",
+        "alias" : ["teameme", "tea"],
+        "execute" : """
+thisjson = requests.get("http://api.tenor.com/v1/search?key=" + TENOR_KEY + "&tag=" + "tea" + "&limit=10&country=uk").json()
+if len(thisjson["results"]) > 0:
+    imageurl = random.choice(thisjson["results"])["url"]
+    sendMessage(channel, imageurl)
+else:
+    sendMessage(channel, "No teas ;-;")
 """
     },
     {
@@ -169,12 +263,56 @@ else:
 a = imgur.gallery_search(" ".join(arguments), sort="best")
 if len(a) > 0:
     loc_index = random.choice(a)
-    print(loc_index.link)
     sendMessage(channel, loc_index.link)
 else:
     sendMessage(channel, "Your request was so abstract, noone has posted a image of it yet!")
 """
+    },
+    {
+        "name" : "Id",
+        "description" : "Gets the id of a user",
+        "hidden" : True,
+        "syntax" : "Id {username}",
+        "alias" : ["id"],
+        "execute" : """
+if len(arguments) > 0:
+    this_id = getId(arguments[0])
+    if this_id == False:
+        sendMessage(channel, "Could not find user with the username : " + arguments[0])
+    else:
+        sendMessage(channel, "The user's ID is " + this_id)
+else:
+    sendMessage(channel, "Your ID is " + user)
+"""
+    },
+    {
+        "name" : "Excel",
+        "description" : "Gives a excel sheet of the users",
+        "hidden" : False,
+        "syntax" : "Excel",
+        "alias" : ["excel", "xlsx"],
+        "execute" : """
+createXcel()
+data = ''
+with open('Data.xlsx', 'rb') as file:
+    data = file.read()
+verbose('sending')
+upload_file('Leaderboard.xlsx', data, channel)
+verbose('sent')
+"""
+    },
+    {
+        "name" : "CatPlaceholder",
+        "description" : "Gives a cat image based on a height and width.",
+        "hidden" : False,
+        "syntax" : "CatPlaceholder {width} {height}",
+        "alias" : ["catplaceholder", "placeholders", "catify"],
+        "execute" : """
+content = requests.get("https://placekitten.com/{}/{}".format(arguments[0], arguments[1])).content
+verbose('sending')
+if not upload_file('placeholder.jpg', content , channel):
+    sendMessage(channel, "No placeholder found!")
+verbose('sent')
+"""
     }
-    
 ]
-

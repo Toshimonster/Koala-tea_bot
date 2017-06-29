@@ -14,4 +14,4 @@ class db(object):
 
     def write(self):
         with open(self.file, 'w') as ThisFile:
-            ThisFile.write(json.dumps(self.data))
+            ThisFile.write(json.dumps(self.data, indent=4, sort_keys=True))

@@ -1,13 +1,16 @@
 teatypes = [
-    ["Tea", ["t"]],
-    ["Green Tea", ["gt"]],
+    ["Green Tea", ["gt", ":tea:"]],
     ["Coffee", ["c"]],
+    ["White Coffee", ["wc"]],
+    ["White Coffee Instant", ["wci"]],
+    ["White Coffee Espresso", ["wce"]],
     ["Tea w/o Much Milk", ["twom"]],
     ["Strong Black Tea", ["sbt"]],
+    ["Strong Black Tea /w 2 Sugars", ["sbt2"]],
     ["Hot Chocolate", ["hc"]],
     ["Earl Grey", ["eg"]],
-    ["Tea /w Milk", ["twm"]],
     ["White Tea", ["wt"]],
+    ["White Tea /w 1 Sugar", ["wt1"]],
     ["White Tea /w 2 Sugars", ["wt2"]],
     ["White Tea /w Lots of Milk", ["wtlm"]],
     ["Black Coffee Instant", ["bci"]],
@@ -15,5 +18,7 @@ teatypes = [
     ["Peppermint Tea", ["pt"]],
     ["White Earl Grey Tea", ["wegt"]],
     ["Black Americano", ["ba"]],
-    ["Roooiboos Tea Black", ["rtb"]]
+    ["Roooiboos Tea Black", ["rtb"]],
+    ["Lemon Green Tea", ["lgt"]],
+    ["Coffee Milkshake", ["cm"]]
 ]
