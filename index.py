@@ -6,6 +6,7 @@ import requests
 import random
 import xlsxwriter
 import io
+import subprocess
 
 from CONFIG import settings
 from imgurpython import ImgurClient
@@ -57,16 +58,16 @@ for teatype in peronitypes:
     peroni_list.append(teatype[0])
 #server stuff START
 
-class server(threading.Thread):
-    def __init__(self):
-        threading.Thread.__init__(self)
+#class server(threading.Thread):
+#    def __init__(self):
+#        threading.Thread.__init__(self)
 
-    def run(self):
-        print("Server Start")
-        os.system("python -m http.server 8080")
+#    def run(self):
+#        print("Server Start")
+#        os.system("python -m http.server 8080")
 
-serverthread = server()
-serverthread.start()
+#serverthread = server()
+#serverthread.start()
 #server stuff END
 
 class ping_slackRequest_peroni(threading.Thread):

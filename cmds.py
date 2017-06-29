@@ -46,7 +46,7 @@ sendMessage(channel, mention(user) + ' Pong!')
         "syntax" : "Screenfetch",
         "alias" : ["screenfetch", "status"],
         "execute" : """
-screenfetch_output = subprocess.run(['screenfetch'], stdout=subprocess.PIPE).stdout.decode('utf-8')
+screenfetch_output = subprocess.check_output(['screenfetch', '-N',  '-D', 'arch']).decode('utf-8')
 sendMessage(channel, '```' + screenfetch_output + '```')
 """
     },
