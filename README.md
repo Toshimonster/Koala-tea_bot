@@ -74,15 +74,15 @@ Cute ones at that, but they seemed to have added !gif, !img, and !cat.
 ... and apparently 'secret commands', known as 'sekrit commands' from them, but who knows what they are, but them.
 This is why coding can be great fun while giving you an education in memeology.
 
-Day 3 Went by fast
+Day 3 Went by fast, I guess we need to limit the caffeene!
 
 Today, we tested the code with those at redriver...
-...to be spammed with suggestions from , much to our dismay.
+...to be spammed with suggestions, followed by laughs heard around the office!
 General debugging went through and new tea-types were added to the recently made list.
 Commands were polished and memes were shown in the #sekrit_dokument chat as we attempted to polish the base commands.
 Also, More secret commands were added.
 
-Day 4 Began normally
+Day 4 Began normally, but as always, its never as simple as that.
 
 The day was a fairly simple one - stress-test the bot(get rate-limited in the process), fix bugs and have fun.
 Also add in a new tea-time version by the suggestion of our employer.
@@ -90,6 +90,15 @@ One major bug that day involved us having to spend an hour looking for a fault..
 ...only for will to find out that josh simply put in the wrong brackets.
 Oh how the simplest of things can break codes so easily. 
 Day 4 was as normal as it was going to get.
+...Also...
+*Hosting!*
+_BAM!_
+SSH shonanagains...
+_BING!_
+Ubuntu is a pain with services...
+_BOOM!_
+`rc.local` ftw.
+_~Cheers Paul_
 
 Day 5, The final day.
 
