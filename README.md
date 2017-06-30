@@ -91,7 +91,7 @@ One major bug that day involved us having to spend an hour looking for a fault..
 Oh how the simplest of things can break codes so easily. 
 Day 4 was as normal as it was going to get.
 ...Also...  
-*Hosting!*  
+###### Hosting! 
 _BAM!_  
 SSH shonanagains...  
 _BING!_  
