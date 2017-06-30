@@ -1,5 +1,5 @@
 # Koala-tea Bot
-###### Developed By Joshua, Steven And William.
+##### Developed By Joshua, Steven And William.
 
 We were given a task of creating a quality slack bot, of organising 'Tea rounds' in the office, with added 
 functionality to 'name and shame' people in the office.
