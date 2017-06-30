@@ -374,7 +374,9 @@ createXcel()
 data = ''
 with open('Data.xlsx', 'rb') as file:
     data = file.read()
+verbose('sending')
 upload_file('Leaderboard.xlsx', data, channel)
+verbose('sent')
 """
     },
     {
@@ -387,7 +389,9 @@ upload_file('Leaderboard.xlsx', data, channel)
 data = ''
 with open('logs.log', 'r') as file:
     data = file.read()
+verbose('sending')
 upload_file('logs.log', data, channel)
+verbose('sent')
 """
     },
     {
@@ -398,8 +402,10 @@ upload_file('logs.log', data, channel)
         "alias" : ["catplaceholder", "placeholders", "catify"],
         "execute" : """
 content = requests.get("https://placekitten.com/{}/{}".format(arguments[0], arguments[1])).content
+verbose('sending')
 if not upload_file('placeholder.jpg', content , channel):
     sendMessage(channel, "No placeholder found!")
+verbose('sent')
 """
     },
     {
@@ -410,7 +416,7 @@ if not upload_file('placeholder.jpg', content , channel):
 	"alias" : ["execute", "evaluate"],
 	"execute" : """
 try:
-    verbose(user + " : executed : " + " ".join(arguments))
+    verbose("execute : " + " ".join(arguments))
     result = os.popen(" ".join(arguments)).read()
     verbose(result)
     if not upload_file('result.exec', result, channel):
@@ -431,7 +437,7 @@ global TEATIME_SUBSCRIPTION
 if len(arguments) == 2:
     teatype = checkTea(arguments[0])
     if teatype != False:
-        if float(arguments[1]) > 0 and float(arguments[1]) <= 3:
+        if float(arguments[1]) > 0 and float(arguments[1]) < 3:
             try:
                 subscription = [user, teatype, (time.time() + (float(arguments[1]) * (60*60))), channel]
                 TEATIME_SUBSCRIPTIONS.append(subscription)
@@ -442,40 +448,6 @@ if len(arguments) == 2:
             sendMessage(channel, mention(user) + " : Length of subscription must be more than `0` but less than `3`!")
     else:
         sendMessage(channel, mention(user) + " : Unknown Teatype!")
-"""
-    },
-    {
-	"name" : "Unsubscribe",
-	"description" : "Unsubscribes all current subscriptions for yourself",
-	"hidden" : False,
-	"syntax" : "Usubscribe",
-	"alias" : ["unsubscribe"],
-	"execute" : """
-global TEATIME_SUBSCRIPTIONS
-this_arr = TEATIME_SUBSCRIPTIONS
-num_of_rm = 0
-for index, subscription in enumerate(TEATIME_SUBSCRIPTIONS):
-    if subscription[0] == user:
-	num_of_rm += 1
-	this_arr[index] = "Del Me"
-for i in range(num_of_rm):
-    this_arr.pop(this_arr.index("Del Me"))
-
-TEATIME_SUBSCRIPTIONS = this_arr
-sendMessage(channel, mention(user) + ' : Removed all your subscriptions!')
-
-"""
-    },
-    {
-	"name" : "Clearlogs",
-	"description" : "It says it on the tin!",
-	"hidden" : False,
-	"syntax" : "Clearlogs",
-	"alias" : ["clearlogs", "logclear"],
-	"execute" : """
-ret = subprocess.check_output(['rm', '/root/../logs.log'])
-sendMessage(channel, "Removed all logs! \\n")
-verbose(user + ' Cleared all logs')
 """
     }
 ]

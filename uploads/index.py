@@ -428,18 +428,11 @@ if __name__ == "__main__":
                 verbose(e)
 
             try:
-                if iters % 1200 == 0:
-		    this_arr = TEATIME_SUBSCRIPTIONS
-		    num_of_rm = 0
+                if iters % 12 == 0:
                     for index, subscription in enumerate(TEATIME_SUBSCRIPTIONS):
-   			if subscription[2] < time.time():
-        		    num_of_rm += 1
-        		    this_arr[index] = "Del Me"
-			    sendMessage(subscription[3], mention(subscription[0]) + ' : Your subscription of ' + subscription[1] + ' has expired!')
-		    for i in range(num_of_rm):
-    			this_arr.pop(this_arr.index("Del Me"))
-		    TEATIME_SUBSCRIPTIONS = this_arr
-
+                        if subscription[2] < time.time():
+                            TEATIME_SUBSCRIPTIONS.pop(index)
+                            sendMessage(subscription[3], mention(subscription[0]) + ' : Your subscription of ' + subscription[1] + ' has expired!')
             except Exception as e:
                 verbose('SUBSCRIPTION ERROR :')
                 verbose(e)

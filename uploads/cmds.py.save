@@ -51,17 +51,6 @@ sendMessage(channel, '```' + screenfetch_output + '```')
 """
     },
     {
-	"name" : "Reboot",
-	"description" : "Reboots the bot's server",
-	"hidden" : False,
-	"syntax" : "Reboot",
-	"alias" : ["reboot", "restart"],
-	"execute" : """
-sendMessage(channel, mention(user) + ' : Rebooting...')
-subprocess.check_output(['reboot'])
-"""
-    },
-    {
         "name" : "Tearound",
         "description" : "Starts a 'tearound' - asks everyone what they want, and displays it to the user.",
         "hidden" : False,
@@ -77,31 +66,22 @@ global TEATIME_TEAS
 global TEATIME_CANCELED
 global TEATIME_LENGTH_OG
 global thread
-global TEATIME_SUBSCRIPTIONS
-if not FLAG_TEATIME:
-    TEATIME_TEAS = []
-    FLAG_TEATIME = True
-    if len(arguments) > 0:
-        try:
-            TEATIME_LENGTH = eval(arguments[0])
-        except:
-            TEATIME_LENGTH = TEATIME_LENGTH_OG
-    else:
+TEATIME_TEAS = []
+FLAG_TEATIME = True
+if len(arguments) > 0:
+    try:
+        TEATIME_LENGTH = eval(arguments[0])
+    except:
         TEATIME_LENGTH = TEATIME_LENGTH_OG
-    TEATIME_CREATOR = user
-    TEATIME_CHANNEL = channel
-    
-    sendMessage(channel, '<!channel> : The tea round has begun! It will end in ' + str(TEATIME_LENGTH) + ' seconds!')
-    for subscription in TEATIME_SUBSCRIPTIONS:
-        TEATIME_TEAS.append([subscription[1], subscription[0]])
-        sendMessage(channel, mention(subscription[0]) + ' : The subscripted ' + subscription[1] + ' has been added!')
-
-    TEATIME_END = time.time() + TEATIME_LENGTH
-    TEATIME_CANCELED = False
-    thread = ping_slackRequest(p_msg)
-    thread.start()
 else:
-    sendMessage(channel, mention(user) + ' : A tea round is already running! `!cancel` it first!')
+    TEATIME_LENGTH = TEATIME_LENGTH_OG
+TEATIME_CREATOR = user
+TEATIME_CHANNEL = channel
+TEATIME_END = time.time() + TEATIME_LENGTH
+TEATIME_CANCELED = False
+sendMessage(channel, '<!channel> : The tea round has begun! It will end in ' + str(TEATIME_LENGTH) + ' seconds!')
+thread = ping_slackRequest(p_msg)
+thread.start()
 """
     },
     {
@@ -123,26 +103,22 @@ else:
     global P_TEATIME_CANCELED
     global P_TEATIME_LENGTH_OG
     global P_thread
-    if not P_FLAG_TEATIME:
-    	P_TEATIME_TEAS = []
-    	P_FLAG_TEATIME = True
-    	if len(arguments) > 0:
-            try:
-            	P_TEATIME_LENGTH = eval(arguments[0])
-            except:
-            	P_TEATIME_LENGTH = TEATIME_LENGTH_OG
-    	else:
+    P_TEATIME_TEAS = []
+    P_FLAG_TEATIME = True
+    if len(arguments) > 0:
+        try:
+            P_TEATIME_LENGTH = eval(arguments[0])
+        except:
             P_TEATIME_LENGTH = TEATIME_LENGTH_OG
-    	P_TEATIME_CREATOR = user
-    	P_TEATIME_CHANNEL = channel
-    	P_TEATIME_END = time.time() + P_TEATIME_LENGTH
-    	P_TEATIME_CANCELED = False
-    	sendMessage(channel, 'https://www.gifgif.io/QNMlcP.gif\\n<!channel> : The peroni round has begun! It will end in ' + str(P_TEATIME_LENGTH) + ' seconds!')
-    	P_thread = ping_slackRequest_peroni(p_msg)
-    	P_thread.start()
     else:
-    	sendMessage(channel, mention(user) + ' : A peroni round is already running! `!cancel` it first!')
-
+        P_TEATIME_LENGTH = TEATIME_LENGTH_OG
+    P_TEATIME_CREATOR = user
+    P_TEATIME_CHANNEL = channel
+    P_TEATIME_END = time.time() + P_TEATIME_LENGTH
+    P_TEATIME_CANCELED = False
+    sendMessage(channel, 'https://www.gifgif.io/QNMlcP.gif\\n<!channel> : The peroni round has begun! It will end in ' + str(P_TEATIME_LENGTH) + ' seconds!')
+    P_thread = ping_slackRequest_peroni(p_msg)
+    P_thread.start()
 """
     },
     {
@@ -374,108 +350,38 @@ createXcel()
 data = ''
 with open('Data.xlsx', 'rb') as file:
     data = file.read()
+verbose('sending')
 upload_file('Leaderboard.xlsx', data, channel)
+verbose('sent')
 """
     },
     {
-        "name" : "Error",
-        "description" : "Gives the log of the program",
+{
+        "name" : "Excel",
+        "description" : "Gives a excel sheet of the users",
         "hidden" : False,
-        "syntax" : "Error",
-        "alias" : ["error", "logs"],
+        "syntax" : "Excel",
+        "alias" : ["excel", "xlsx"],
         "execute" : """
+createXcel()
 data = ''
-with open('logs.log', 'r') as file:
+with open('Data.xlsx', 'rb') as file:
     data = file.read()
-upload_file('logs.log', data, channel)
+verbose('sending')
+upload_file('Leaderboard.xlsx', data, channel)
+verbose('sent')
 """
-    },
-    {
-        "name" : "CatPlaceholder",
+    }        "name" : "CatPlaceholder",
         "description" : "Gives a cat image based on a height and width.",
         "hidden" : False,
         "syntax" : "CatPlaceholder {width} {height}",
         "alias" : ["catplaceholder", "placeholders", "catify"],
         "execute" : """
 content = requests.get("https://placekitten.com/{}/{}".format(arguments[0], arguments[1])).content
+verbose('sending')
 if not upload_file('placeholder.jpg', content , channel):
     sendMessage(channel, "No placeholder found!")
-"""
-    },
-    {
-    	"name" : "Execute",
-	"description" : "Runs a command on the bot's server. _Please dont forkbomb me.... please..._",
-	"hidden" : False,
-	"syntax" : "Execute {command}",
-	"alias" : ["execute", "evaluate"],
-	"execute" : """
-try:
-    verbose(user + " : executed : " + " ".join(arguments))
-    result = os.popen(" ".join(arguments)).read()
-    verbose(result)
-    if not upload_file('result.exec', result, channel):
-       sendMessage(channel, "ERROR! Please check !error") 
-except Exception as e:
-    verbose(e)
-    sendMessage(channel, "ERROR! Please check !error")
-"""
-   },
-   {
-       "name" : "Subcription",
-       "description" : "Subscribes to a certain teatype, to automatically add yourself to a tearound.",
-       "hidden" : False,
-       "syntax" : "Subscription {teatype} {hours}",
-       "alias" : ["subscribe", "subscription"],
-       "execute" : """
-global TEATIME_SUBSCRIPTION
-if len(arguments) == 2:
-    teatype = checkTea(arguments[0])
-    if teatype != False:
-        if float(arguments[1]) > 0 and float(arguments[1]) <= 3:
-            try:
-                subscription = [user, teatype, (time.time() + (float(arguments[1]) * (60*60))), channel]
-                TEATIME_SUBSCRIPTIONS.append(subscription)
-                sendMessage(channel, "Subscribed " + mention(user) + " with " + teatype + " for " + arguments[1] + " hours!")
-            except:
-                sendMessage(channel, mention(user) + " : Length of subscription must be a number!")
-        else:
-            sendMessage(channel, mention(user) + " : Length of subscription must be more than `0` but less than `3`!")
-    else:
-        sendMessage(channel, mention(user) + " : Unknown Teatype!")
-"""
-    },
-    {
-	"name" : "Unsubscribe",
-	"description" : "Unsubscribes all current subscriptions for yourself",
-	"hidden" : False,
-	"syntax" : "Usubscribe",
-	"alias" : ["unsubscribe"],
-	"execute" : """
-global TEATIME_SUBSCRIPTIONS
-this_arr = TEATIME_SUBSCRIPTIONS
-num_of_rm = 0
-for index, subscription in enumerate(TEATIME_SUBSCRIPTIONS):
-    if subscription[0] == user:
-	num_of_rm += 1
-	this_arr[index] = "Del Me"
-for i in range(num_of_rm):
-    this_arr.pop(this_arr.index("Del Me"))
-
-TEATIME_SUBSCRIPTIONS = this_arr
-sendMessage(channel, mention(user) + ' : Removed all your subscriptions!')
-
-"""
-    },
-    {
-	"name" : "Clearlogs",
-	"description" : "It says it on the tin!",
-	"hidden" : False,
-	"syntax" : "Clearlogs",
-	"alias" : ["clearlogs", "logclear"],
-	"execute" : """
-ret = subprocess.check_output(['rm', '/root/../logs.log'])
-sendMessage(channel, "Removed all logs! \\n")
-verbose(user + ' Cleared all logs')
+verbose('sent')
 """
     }
 ]
