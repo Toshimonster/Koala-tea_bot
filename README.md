@@ -1,5 +1,5 @@
 # Koala-tea Bot
-##### Developed By Joshua, Steven And William.
+##### Developed By Joshua
 
 
 `python index.py`
